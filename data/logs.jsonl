@@ -1,0 +1,15 @@
+{"timestamp": "2026-03-30 18:37:44", "level": "ERROR", "message": "Nova conexão recebida", "service": "worker"}
+{"timestamp": "2026-03-30 18:37:45", "level": "DEBUG", "message": "Sessão expirada", "service": "worker"}
+{"timestamp": "2026-03-30 18:37:46", "level": "WARNING", "message": "Sessão expirada", "service": "worker"}
+{"timestamp": "2026-03-30 18:37:47", "level": "DEBUG", "message": "Erro interno no servidor", "service": "api"}
+{"timestamp": "2026-03-30 18:37:49", "level": "WARNING", "message": "Sessão expirada", "service": "database"}
+{"timestamp": "2026-03-30 18:37:49", "level": "ERROR", "message": "Erro interno no servidor", "service": "auth-service"}
+{"timestamp": "2026-03-30 18:37:51", "level": "ERROR", "message": "Timeout na requisição", "service": "worker"}
+{"timestamp": "2026-03-30 18:37:52", "level": "WARNING", "message": "Nova conexão recebida", "service": "auth-service"}
+{"timestamp": "2026-03-30 18:37:54", "level": "WARNING", "message": "Arquivo carregado com sucesso", "service": "api"}
+{"timestamp": "2026-03-30 18:37:55", "level": "DEBUG", "message": "Nova conexão recebida", "service": "worker"}
+{"timestamp": "2026-03-30 18:37:55", "level": "INFO", "message": "Timeout na requisição", "service": "api"}
+{"timestamp": "2026-03-30 18:37:56", "level": "DEBUG", "message": "Timeout na requisição", "service": "auth-service"}
+{"timestamp": "2026-03-30 18:37:57", "level": "WARNING", "message": "Timeout na requisição", "service": "auth-service"}
+{"timestamp": "2026-03-30 18:37:58", "level": "INFO", "message": "Erro interno no servidor", "service": "api"}
+{"timestamp": "2026-03-30 18:38:00", "level": "ERROR", "message": "Sessão expirada", "service": "worker"}
