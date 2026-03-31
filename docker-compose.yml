@@ -12,7 +12,7 @@ services:
   app_logs:
     build: .
     container_name: app_logs
-    command: ["python", "log_app.py"]
+    command: ["python", "scripts.log_app.py"]
     env_file:
       - .env
     depends_on:

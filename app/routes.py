@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, render_template
-from database import criar_tabela, inserir_log, buscar_logs, limpar_logs_antigos, buscar_logs_after_id
+from app.database import criar_tabela, inserir_log, buscar_logs, limpar_logs_antigos, buscar_logs_after_id
 import threading
 import time
 import os
