@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logs Viewer</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: monospace;
+            padding: 10px;
+            margin: 0;
+        }
+
+        #filtros {
+            position: sticky;
+            top: 0;
+            background-color: black;
+            padding: 8px 0;
+            border-bottom: 1px solid #333;
+            margin-bottom: 10px;
+        }
+
+        #filtros button {
+            background: #222;
+            color: white;
+            border: 1px solid #444;
+            padding: 5px 12px;
+            margin-right: 5px;
+            cursor: pointer;
+            font-family: monospace;
+        }
+
+        #filtros button.ativo {
+            background: #444;
+            border-color: #aaa;
+        }
+
+        #logs {
+            white-space: pre-wrap;
+        }
+
+        #status {
+            color: gray;
+            font-size: 0.8em;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="filtros">
+        <button id="btn-hoje" class="ativo" onclick="trocarDia(0)">Hoje</button>
+        <button id="btn-ontem" onclick="trocarDia(1)">Ontem</button>
+        <button id="btn-anteontem" onclick="trocarDia(2)">Anteontem</button>
+    </div>
+
+    <div id="logs"></div>
+    <div id="status"></div>
+
+    <script>
+        let diaAtual = 0; // 0 = hoje, 1 = ontem, 2 = anteontem
+        let ultimoId = 0;
+        let pollingInterval = null;
+
+        function getData(diasAtras) {
+            const d = new Date();
+            d.setDate(d.getDate() - diasAtras);
+            return d.toISOString().split('T')[0]; // formato YYYY-MM-DD
+        }
+
+        async function carregarDia(diasAtras) {
+            const data = getData(diasAtras);
+            const response = await fetch(`/logs?date=${data}`);
+            const logs = await response.json();
+
+            const container = document.getElementById('logs');
+            container.innerHTML = '';
+            ultimoId = 0;
+
+            if (logs.length === 0) {
+                document.getElementById('status').textContent = 'Nenhum log encontrado para esse dia.';
+                return;
+            }
+
+            logs.forEach(log => {
+                const linha = document.createElement('div');
+                linha.textContent = `${log.timestamp} - [${log.level}] - ${log.service} - ${log.message}`;
+                container.appendChild(linha);
+                if (log.id > ultimoId) ultimoId = log.id;
+            });
+
+            document.getElementById('status').textContent = `${logs.length} logs carregados.`;
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        async function carregarNovos() {
+
+            if (diaAtual !== 0) return;
+
+            const response = await fetch(`/logs?after_id=${ultimoId}`);
+            const novos = await response.json();
+
+            if (novos.length === 0) return;
+
+            const container = document.getElementById('logs');
+
+            novos.forEach(log => {
+                const linha = document.createElement('div');
+                linha.textContent = `${log.timestamp} - [${log.level}] - ${log.service} - ${log.message}`;
+                container.appendChild(linha);
+                if (log.id > ultimoId) ultimoId = log.id;
+            });
+
+            document.getElementById('status').textContent = `${container.children.length} logs carregados.`;
+
+            // só rola se o usuário já estiver perto do fim
+            const perto_do_fim = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
+            if (perto_do_fim) {
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+}
+
+        function trocarDia(diasAtras) {
+            diaAtual = diasAtras;
+
+            // atualiza botão ativo
+            document.querySelectorAll('#filtros button').forEach(b => b.classList.remove('ativo'));
+            document.querySelectorAll('#filtros button')[diasAtras].classList.add('ativo');
+
+            carregarDia(diasAtras);
+        }
+
+        // polling a cada 2s só pra novos logs
+        setInterval(carregarNovos, 2000);
+
+        // carga inicial
+        carregarDia(0);
+    </script>
+</body>
+</html>

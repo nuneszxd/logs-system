@@ -3,41 +3,23 @@ import json
 import random
 import time
 from datetime import datetime
+import requests
 
-# Criar logger
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+FLASK_URL = "http://localhost:5000/logs"
+FALLBACK_FILE = "./data/logs_fallback.jsonl"
 
-# Criar handler para arquivo JSON
-file_handler = logging.FileHandler(".\data\logs.jsonl", encoding="utf-8")
 
-# Formatter JSON
-class JsonFormatter(logging.Formatter):
-    def format(self, record):
-        log_record = {
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "level": record.levelname,
-            "message": record.getMessage(),
-            "service": random.choice([
-                "auth-service",
-                "api",
-                "worker",
-                "database"
-            ])
-        }
+def enviar_log(log: dict):
+    try:
+        response = requests.post(FLASK_URL, json=log, timeout=2)
+        response.raise_for_status()
+    except Exception as e:
+        print(f"API fora do ar, salvando localmente: {e}")
+        with open(FALLBACK_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps(log, ensure_ascii=False) + "\n")
 
-        return json.dumps(log_record, ensure_ascii=False)
 
-file_handler.setFormatter(JsonFormatter())
-
-logger.addHandler(file_handler)
-
-levels = [
-    logging.INFO,
-    logging.WARNING,
-    logging.ERROR,
-    logging.DEBUG
-]
+levels = ["INFO", "WARNING", "ERROR", "DEBUG"]
 
 messages = [
     "Usuário autenticado",
@@ -50,12 +32,15 @@ messages = [
     "Sessão expirada"
 ]
 
-print("Gerando logs JSON... (Ctrl+C para parar)")
+print("Gerando logs... (Ctrl+C para parar)")
 
 while True:
-    level = random.choice(levels)
-    message = random.choice(messages)
+    log = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "level": random.choice(levels),
+        "message": random.choice(messages),
+        "service": random.choice(["auth-service", "api", "worker", "database"])
+    }
 
-    logger.log(level, message)
-
+    enviar_log(log)
     time.sleep(random.uniform(0.5, 2))
