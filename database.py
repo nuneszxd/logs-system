@@ -1,7 +1,9 @@
 import sqlite3
 from datetime import datetime, timedelta
+import os
 
-DB_PATH = "./data/logs.db"
+DB_PATH = os.getenv("DB_PATH", "./data/logs.db")
+DAYS_RETENTION = int(os.getenv("DAYS_RETENTION", 3))
 
 def get_connection():
     conn = sqlite3.connect(DB_PATH)
@@ -30,7 +32,6 @@ def inserir_log(log: dict):
 def buscar_logs(data: str = None, limit: int = 50, offset: int = 0):
     with get_connection() as conn:
         if data:
-            # quando filtra por dia, carrega tudo
             rows = conn.execute("""
                 SELECT * FROM logs
                 WHERE DATE(timestamp) = ?
@@ -42,7 +43,6 @@ def buscar_logs(data: str = None, limit: int = 50, offset: int = 0):
                 ORDER BY timestamp ASC
                 LIMIT ? OFFSET ?
             """, (limit, offset)).fetchall()
-
     return [dict(row) for row in rows]
 
 def buscar_logs_after_id(after_id: int):
@@ -55,6 +55,6 @@ def buscar_logs_after_id(after_id: int):
     return [dict(row) for row in rows]
 
 def limpar_logs_antigos():
-    limite = (datetime.now() - timedelta(days=3)).strftime("%Y-%m-%d %H:%M:%S")
+    limite = (datetime.now() - timedelta(days=DAYS_RETENTION)).strftime("%Y-%m-%d %H:%M:%S")
     with get_connection() as conn:
         conn.execute("DELETE FROM logs WHERE timestamp < ?", (limite,))

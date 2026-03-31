@@ -2,8 +2,9 @@ import random
 import time
 import requests
 from datetime import datetime
+import os
 
-API_URL = "http://api:5000/logs"
+API_URL = os.getenv("API_URL", "http://api:5000/logs")
 FALLBACK_FILE = "./data/logs_fallback.jsonl"
 
 levels = ["INFO", "WARNING", "ERROR", "DEBUG"]
