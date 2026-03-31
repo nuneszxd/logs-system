@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+*.pyo
+data/logs.db
+data/logs_fallback.jsonl
+data/logs.jsonl
+.env

@@ -1,23 +1,10 @@
-import logging
-import json
 import random
 import time
-from datetime import datetime
 import requests
+from datetime import datetime
 
-FLASK_URL = "http://api:5000/logs"
+API_URL = "http://api:5000/logs"
 FALLBACK_FILE = "./data/logs_fallback.jsonl"
-
-
-def enviar_log(log: dict):
-    try:
-        response = requests.post(FLASK_URL, json=log, timeout=2)
-        response.raise_for_status()
-    except Exception as e:
-        print(f"API fora do ar, salvando localmente: {e}")
-        with open(FALLBACK_FILE, "a", encoding="utf-8") as f:
-            f.write(json.dumps(log, ensure_ascii=False) + "\n")
-
 
 levels = ["INFO", "WARNING", "ERROR", "DEBUG"]
 
@@ -31,6 +18,17 @@ messages = [
     "Permissão negada para usuário",
     "Sessão expirada"
 ]
+
+def enviar_log(log: dict):
+    try:
+        response = requests.post(API_URL, json=log, timeout=2)
+        response.raise_for_status()
+        print("Log enviado:", log["message"])
+    except Exception as e:
+        print(f"API fora do ar, salvando localmente: {e}")
+        with open(FALLBACK_FILE, "a", encoding="utf-8") as f:
+            import json
+            f.write(json.dumps(log, ensure_ascii=False) + "\n")
 
 print("Gerando logs... (Ctrl+C para parar)")
 
