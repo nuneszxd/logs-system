@@ -92,8 +92,7 @@
             window.scrollTo(0, document.body.scrollHeight);
         }
 
-        async function carregarNovos() {
-
+       async function carregarNovos() {
             if (diaAtual !== 0) return;
 
             const response = await fetch(`/logs?after_id=${ultimoId}`);
@@ -101,9 +100,17 @@
 
             if (novos.length === 0) return;
 
+            // ✅ Pega a data de hoje no mesmo formato do timestamp
+            const dataHoje = getData(0);
+
+            // ✅ Filtra só os logs que são de hoje
+            const novosDehoje = novos.filter(log => log.timestamp.startsWith(dataHoje));
+
+            if (novosDehoje.length === 0) return;
+
             const container = document.getElementById('logs');
 
-            novos.forEach(log => {
+            novosDehoje.forEach(log => {
                 const linha = document.createElement('div');
                 linha.textContent = `${log.timestamp} - [${log.level}] - ${log.service} - ${log.message}`;
                 container.appendChild(linha);
@@ -112,13 +119,11 @@
 
             document.getElementById('status').textContent = `${container.children.length} logs carregados.`;
 
-            // só rola se o usuário já estiver perto do fim
             const perto_do_fim = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
             if (perto_do_fim) {
                 window.scrollTo(0, document.body.scrollHeight);
             }
-}
-
+        }
         function trocarDia(diasAtras) {
             diaAtual = diasAtras;
 

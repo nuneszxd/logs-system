@@ -23,11 +23,12 @@ def criar_tabela():
         """)
 
 def inserir_log(log: dict):
-    with get_connection() as conn:
-        conn.execute("""
-            INSERT INTO logs (timestamp, level, message, service)
-            VALUES (:timestamp, :level, :message, :service)
-        """, log)
+    conn = get_connection()
+    conn.execute("""
+        INSERT INTO logs (timestamp, level, message, service)
+        VALUES (:timestamp, :level, :message, :service)
+    """, log)
+    conn.commit()
 
 def buscar_logs(data: str = None, limit: int = 50, offset: int = 0):
     with get_connection() as conn:

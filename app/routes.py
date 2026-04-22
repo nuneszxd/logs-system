@@ -3,21 +3,17 @@ from app.database import criar_tabela, inserir_log, buscar_logs, limpar_logs_ant
 import threading
 import time
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 
 CAMPOS_OBRIGATORIOS = {"timestamp", "level", "message", "service"}
 
-# limpeza automática a cada 24h
-def limpeza_automatica():
-    while True:
-        time.sleep(86400)  # 24h em segundos
-        limpar_logs_antigos()
-        print("Limpeza de logs antigos executada")
+@app.before_request
+def limpeza_data():
+    limpar_logs_antigos()
 
-threading.Thread(target=limpeza_automatica, daemon=True).start()
 criar_tabela()
-
 
 @app.route('/logs', methods=['GET'])
 def get_logs():
@@ -42,6 +38,24 @@ def post_log():
     campos_faltando = CAMPOS_OBRIGATORIOS - dados.keys()
     if campos_faltando:
         return jsonify({"erro": f"Campos faltando: {campos_faltando}"}), 400
+
+    timestamp = dados["timestamp"]
+
+    try:
+        datetime.strptime(timestamp, "%Y-%m-%d %H:%M:%S")
+
+    except ValueError:
+        return jsonify({"erro": "timestamp inválido"}), 400
+
+    level_validos = ["INFO", "ERROR", "WARNING", "DEBUG"]
+
+    level = dados["level"]
+    level = level.strip().upper()
+
+    if level not in level_validos:
+        return jsonify({"erro": "level inválido"}), 400
+
+    dados["level"] = level
 
     inserir_log(dados)
     return jsonify({"status": "ok"}), 201

@@ -16,6 +16,10 @@ def client():
     criar_tabela()
 
     app.config["TESTING"] = True
+    
+    # desativa o before_request de limpeza
+    app.before_request_funcs[None] = []
+
     with app.test_client() as client:
         yield client
 
